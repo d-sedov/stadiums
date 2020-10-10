@@ -6,7 +6,7 @@
 #
 # DATE: Thu Aug 6 2020
 #
-# DESC: This code contains the code to make simple compario
+# DESC: This code contains the code to make simple comparisons.
 #
 # COMMENT: 
 #
@@ -42,11 +42,11 @@ my_theme <- theme(legend.text = element_text(size = 6),
                   axis.text = element_text(size = 6),
                   axis.title = element_text(size = 8)
 )
-my_theme_large <- theme(legend.text = element_text(size = 12),
-                  legend.title = element_text(size = 16),
-                  plot.title = element_text(hjust = 0.5, size = 20),
-                  axis.text = element_text(size = 12),
-                  axis.title = element_text(size = 16)
+my_theme_large <- theme(legend.text = element_text(size = 8),
+                  legend.title = element_text(size = 10),
+                  plot.title = element_text(hjust = 0.5, size = 12),
+                  axis.text = element_text(size = 8),
+                  axis.title = element_text(size = 10)
 )
 mycolorscheme1 <- c('black', 'orange', 'purple')
 mycolorscheme2 <- c('blue', 'red', 'darkgreen')
@@ -141,14 +141,14 @@ prepareEstablishmentsData <- function(sport) {
       )
       basketball <- read_dta(basketball_file_path)
       
-      # Only establishments within 1 km 
+      # Only establishments within 3 km 
       basketball$distance <- basketball$distance / 1000
       basketball <- basketball %>% 
         mutate(distance_bin = cut(distance, 
                                   seq(0, ranges), 
                                   right = FALSE,
                                   labels = 1 : ranges)) %>%
-        filter(distance_bin == 1)
+        filter(distance <= 3)
       
       # Compute total visits around basketball stadiums
       basketball <- basketball %>% 
@@ -163,14 +163,14 @@ prepareEstablishmentsData <- function(sport) {
       )
       hockey <- read_dta(hockey_file_path)
       
-      # Only establishments within 1 km 
+      # Only establishments within 3 km 
       hockey$distance <- hockey$distance / 1000
       hockey <- hockey %>% 
         mutate(distance_bin = cut(distance, 
                                   seq(0, ranges), 
                                   right = FALSE,
                                   labels = 1 : ranges)) %>%
-        filter(distance_bin == 1)
+        filter(distance <= 3)
       
       # Compute total visits around hockey stadiums
       hockey <- hockey %>% 
@@ -197,14 +197,14 @@ prepareEstablishmentsData <- function(sport) {
       )
       data <- read_dta(data_file_path)
       
-      # Only establishments within 1 km 
+      # Only establishments within 3 km 
       data$distance <- data$distance / 1000
       data <- data %>% 
         mutate(distance_bin = cut(distance, 
                                   seq(0, ranges), 
                                   right = FALSE,
                                   labels = 1 : ranges)) %>%
-        filter(distance_bin == 1)
+        filter(distance <= 3)
       
       # Get first date record per stadium
       data <- data %>% 
@@ -256,16 +256,18 @@ pic <- ggplot(stadium_game_comparisons,
   scale_fill_manual(name = '', values = mycolorscheme3[2:1],
                     guide = 'legend', 
                     labels = c('No game', 'Game')) + 
-  ylab('Average daily SG visits to stadiums') + 
+  ylab('Mean daily visits to stadiums') + 
   theme_bw(base_family = 'Times') +
+  scale_y_continuous(labels = scales::comma) +
   my_theme_large +
-  theme(axis.title.x = element_blank(),
+  theme(axis.title.x = element_blank(), legend.title = element_blank(),
         legend.justification=c(0.01,0.99),
-        legend.position = c(0.01, 0.99)) 
+        legend.position = c(0.01, 0.99),
+        plot.margin = unit(c(0.5,0,0,0), "cm"))
 
 ggsave(filename = file.path(plots_folder_path, 
                             'stadium_visits_game_nogame.pdf'), 
-       device = cairo_pdf, plot = pic, width = 7, height = 5)
+       device = cairo_pdf, plot = pic, width = 4.0, height = 2.5)
 embed_fonts(file = file.path(plots_folder_path,
                              'stadium_visits_game_nogame.pdf'))
 
@@ -292,7 +294,7 @@ pic1 <- ggplot(stadium_timeline, aes(x = Date,
   geom_line(aes(y = stadium_visits, alpha = 0.175)) + 
   geom_line(aes(y = rollmean_visits, alpha = 1)) +  
   theme_bw(base_family = 'Times') +
-  my_theme +
+  my_theme_large +
   scale_color_manual(name = 'Color', values = mycolorscheme3,
                     guide = 'legend') +
   scale_y_continuous(labels = scales::comma) +
@@ -303,7 +305,7 @@ pic1 <- ggplot(stadium_timeline, aes(x = Date,
                          ) + 
   coord_cartesian(ylim = c(0, 25000)) + 
   ylab('Total SG visits to stadiums') +
-  theme(axis.title.x = element_blank()) 
+  theme(axis.title.x = element_blank())
 
 ggsave(filename = file.path(plots_folder_path, 
                             'stadium_visits_timeline.pdf'), 
@@ -317,7 +319,7 @@ pic2 <- ggplot(stadium_timeline, aes(x = Date,
   geom_line(aes(y = game, alpha = 0.175)) + 
   geom_line(aes(y = rollmean_games, alpha = 1)) +  
   theme_bw(base_family = 'Times') +
-  my_theme +
+  my_theme_large +
   scale_color_manual(name = 'Color', values = mycolorscheme3,
                      guide = 'legend') +
   scale_y_continuous(labels = scales::comma) +
@@ -326,7 +328,7 @@ pic2 <- ggplot(stadium_timeline, aes(x = Date,
                          labels = c('Daily data', 
                                     '7-day moving average')) + 
   ylab('Total number of games') +
-  theme(axis.title.x = element_blank()) 
+  theme(axis.title.x = element_blank())
 
 ggsave(filename = file.path(plots_folder_path, 
                             'stadium_games_timeline.pdf'), 
@@ -365,16 +367,19 @@ pic <- ggplot(establishment_game_comparison,
   scale_fill_manual(name = '', values = mycolorscheme3[2:1],
                     guide = 'legend', 
                     labels = c('No game', 'Game')) + 
-  ylab('Average daily SG visits to businesses near stadiums') + 
+  ylab('Mean daily business visits near stadiums') + 
   theme_bw(base_family = 'Times') +
+  scale_y_continuous(labels = scales::comma) +
   my_theme_large +
   theme(axis.title.x = element_blank(),
+        legend.title = element_blank(),
         legend.justification=c(0.99, 0.99),
-        legend.position = c(0.99, 0.99)) 
+        legend.position = c(0.99, 0.99), 
+        plot.margin = unit(c(0.5,0,0,0), "cm"))
 
 ggsave(filename = file.path(plots_folder_path, 
                             'establishment_visits_game_nogame.pdf'), 
-       device = cairo_pdf, plot = pic, width = 7, height = 5)
+       device = cairo_pdf, plot = pic, width = 4.0, height = 2.5)
 embed_fonts(file = file.path(plots_folder_path,
                              'establishment_visits_game_nogame.pdf'))
 
