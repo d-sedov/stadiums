@@ -1,6 +1,6 @@
 ###############################################################################
 #
-# FILE: stadium_regressions_aggregated.R
+# FILE: stadium_baseline_regressions.R
 #
 # BY: Dmitry Sedov 
 #

@@ -1,6 +1,6 @@
 ###############################################################################
 #
-# FILE: stadium_regressions.R
+# FILE: stadium_range_regressions.R
 #
 # BY: Dmitry Sedov 
 #
